@@ -1,0 +1,557 @@
+Приложение A
+Листинг класса Lit:
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace LitListChanger
+{
+    public class person
+    {
+        public string surname;
+        public string initials;
+    }
+
+    public class refer
+    {
+        public person[] author;
+        public string year;
+        public object start;
+        public object end;
+        public string textAll;
+    }
+
+    class Lit
+    {
+        public person[] author;
+        public int year;
+        public string Refer;
+        public string textAll;
+        public object start;
+        public object end;
+        private int length;
+        private int cntnames;
+        private int shows;
+        private int j;
+        private int q;
+        private int i;
+        public string allsurnames;
+        public bool add;
+        public int number;
+        private bool numberseen;
+        private string first, second, third;
+        public Lit()
+        {
+            this.year = 0;
+            this.start = 0;
+            this.end = 0;
+            this.textAll = "";
+            first = "";
+            second = "";
+            third = "";
+            add = false;
+            length = (int)end - (int)start + 1;
+            shows = 1;
+            cntnames = -1;
+            Refer = "";
+            this.author = new person[20];
+            for (int k = 0; k < 20; k++) author[k] = new person();
+            allsurnames = "";
+            number = 0;
+        }
+        bool IsSur(string str)
+        {
+            if (str == "") return false;
+            if (char.IsUpper(str[0]) && str.Length > 1 && !char.IsUpper(str[1])) return true;
+            else return false;
+        }
+
+        bool IsInit(string str)
+        {
+            if (str == "") return false;
+            if (str.Length == 1) if (char.IsUpper(str[0])) return true;
+            if (str.Length == 2) if (char.IsUpper(str[0]) && char.IsUpper(str[1])) return true;
+            return false;
+        }
+
+        public void Init()
+        {
+            i = 0;
+            numberseen = false;
+            while (char.IsLetter(textAll[i]) == false)
+            {
+                if (char.IsDigit(textAll[i])) add = true;
+                i++;
+            }//уберём лишние пробелы либо цифры в начале
+            textAll = textAll.Substring(i);
+            i = 0;
+            while (true)
+            {
+                j = i;
+                //увеличим массив авторов
+                first = "";
+                second = "";
+                third = "";
+                shows = -1;
+                //возбмём три первых слова, разделённых пробелами
+                while (textAll[j] != ' ')
+                {
+                    if (char.IsDigit(textAll[j])) numberseen = true;
+                    if (char.IsLetter(textAll[j])) first += textAll[j];
+                    j++;
+                }
+                j++;
+                while (textAll[j] != ' ')
+                {
+                    if (char.IsDigit(textAll[j])) numberseen = true;
+                    if (char.IsLetter(textAll[j])) second += textAll[j];
+                    j++;
+                }
+                q = j + 1;
+                while (textAll[q] != ' ')
+                {
+                    if (char.IsDigit(textAll[q])) numberseen = true;
+                    if (char.IsLetter(textAll[q])) third += textAll[q];
+                    q++;
+                }
+                if (numberseen == true)
+                {
+                    if (IsSur(first) == true && IsInit(second) == true)
+                    {
+                        cntnames++;
+                        Array.Resize(ref author, cntnames + 1);
+                        author[cntnames] = new person();
+                        author[cntnames].surname = first;
+                        author[cntnames].initials = second;
+                    }
+                    if (IsSur(second) == true && IsInit(first) == true)
+                    {
+                        cntnames++;
+                        Array.Resize(ref author, cntnames + 1);
+                        author[cntnames] = new person();
+                        author[cntnames].initials = first;
+                        author[cntnames].surname = second;
+                    }
+                    break;
+                }
+
+                if (shows == -1 && IsSur(first) == true) shows = 10; else shows = 1; //10 - фамилия первая,  1 - первые инициалы
+                if (shows == 10 && IsSur(first) == true && IsInit(second) == true)
+                {
+                    cntnames++;
+                    Array.Resize(ref author, cntnames + 1);
+                    author[cntnames] = new person();
+                    author[cntnames].surname = first;
+                    if (IsInit(second) == true) if (IsInit(third) == true)
+                        {
+                            author[cntnames].initials = second + third;
+                            i = q + 1;
+                        }
+                        else
+                        {
+                            author[cntnames].initials = second;
+                            i = ++j;
+                            if (IsSur(third) == false && IsInit(third) == false) break;
+                        }
+                }
+                else
+                {
+                    if (IsInit(first) == true && IsSur(second) == true)
+                    {
+                        cntnames++;
+                        Array.Resize(ref author, cntnames + 1);
+                        author[cntnames] = new person();
+                        author[cntnames].initials = first;
+                        author[cntnames].surname = second;
+                        i = j;
+                    }
+                    else break;
+                }
+            }
+            i = 0;
+            while (i + 4 < textAll.Length - 1)
+            {
+                if (char.IsDigit(textAll[i]) && char.IsDigit(textAll[i + 1]) && char.IsDigit(textAll[i + 2]) && char.IsDigit(textAll[i + 3])) 
+                    year = Convert.ToInt32(textAll.Substring(i, 4));
+                if (year >= 1950 && year <= 2021) { break; }
+                else year = 0;
+                i++;
+            }
+            if (year != 0)
+            {
+                if (cntnames > 1) Refer = author[0].surname + " et al., " + year.ToString();
+                else if (cntnames == 0) Refer = author[0].surname + ", " + year.ToString();
+                else Refer = author[0].surname + " & " + author[1].surname + ", " + year.ToString();
+            }
+            else
+            {
+                if (cntnames > 2) Refer = author[0].surname + " et al.";// + year.ToString();
+                else if (cntnames == 1) Refer = author[0].surname;// + ", " + year.ToString();
+                else Refer = author[0].surname + " & " + author[1].surname;// + ", " + year.ToString();
+            }
+
+        }
+    }
+}
+
+Приложение Б
+Листинг интерфейса основного окна:
+using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.Reflection;
+using Word = Microsoft.Office.Interop.Word;
+
+
+
+namespace LitListChanger
+{
+    /// <summary>
+    /// Логика взаимодействия для MainWindow.xaml
+    /// </summary>
+    /// 
+
+    public partial class MainWindow : Window
+    {
+        Lit[] list;
+        int last = 0;
+        OpenFileDialog openFileDialog1 = new OpenFileDialog();
+        public MainWindow()
+        {
+            InitializeComponent();
+            openFileDialog1.Filter = "Text files(*.doc?)|*.doc?|All files(*.*)|*.*";
+        }
+
+        private void Frame_Loaded(object sender, RoutedEventArgs e)
+        {
+            Array.Resize(ref list, 1);
+            radioButton1.IsChecked = true;
+            radioButton3.IsChecked = true;
+
+        }
+        public Word.Range Parant(Word._Document _document, Object _missingObj, object stringToFindObj)
+        {
+            Word.Range wordRange;
+            bool rangeFound;
+
+            //в цикле обходим все разделы документа, получаем Range, запускаем поиск
+            // если поиск вернул true, он долже ужать Range до найденное строки, выходим и возвращаем Range
+            // обходим все разделы документа
+            for (int i = 1; i <= _document.Sections.Count; i++)
+            {
+                // берем всю секцию диапазоном
+                wordRange = _document.Sections[i].Range;
+
+                /*
+                // Обходим редкий глюк в Find, ПРИЗНАННЫЙ MICROSOFT, метод Execute на некоторых машинах вылетает с ошибкой "Заглушке переданы неправильные данные / Stub received bad data"  Подробности: http://support.microsoft.com/default.aspx?scid=kb;en-us;313104
+                // выполняем метод поиска и  замены обьекта диапазона ворд
+                rangeFound = wordRange.Find.Execute(ref stringToFindObj, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing, ref wordMissing);
+                */
+
+                Word.Find wordFindObj = wordRange.Find;
+
+                object[] wordFindParameters = new object[15] { stringToFindObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj, _missingObj };
+
+                rangeFound = (bool)wordFindObj.GetType().InvokeMember("Execute", BindingFlags.InvokeMethod, null, wordFindObj, wordFindParameters);
+
+                if (rangeFound) { return wordRange; }
+            }
+
+            // если ничего не нашли, возвращаем null
+            return null;
+        }
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == false)
+                return;
+            // получаем выбранный файл
+            string filename = openFileDialog1.FileName;
+            textBox1.Text = filename;
+
+            // объкты для ворда
+            Word._Application application;
+            Word._Document document;
+            Object missingObj = System.Reflection.Missing.Value;
+            Object trueObj = true;
+            Object falseObj = false;
+            //создаем обьект приложения word
+            application = new Word.Application();
+            // создаем путь к файлу 
+            Object templatePathObj = filename;
+            document = null;
+            // если вылетим на этом этапе, приложение останется открытым
+            try
+            {
+                document = application.Documents.Add(ref templatePathObj, ref missingObj, ref missingObj, ref missingObj);
+            }
+            catch (Exception error)
+            {
+                document.Close(ref falseObj, ref missingObj, ref missingObj);
+                application.Quit(ref missingObj, ref missingObj, ref missingObj);
+                document = null;
+                application = null;
+                throw error;
+            }
+
+            //найдём литературный источник под номером 1
+            string strToFind = "Литература";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rСписок литературы/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rСписок использованной литературы/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rСсылки/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rБиблиографический список/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rReferences/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rLiterature/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rСписок использованной литературы: /r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rСсылки:/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rБиблиографический список:/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rReferences:/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rLiterature:/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rСписок литературы:/r";
+            if (Parant(document, missingObj, strToFind) == null) strToFind = "/rЛитература:/r";
+            if (Parant(document, missingObj, strToFind) == null)
+            {
+                return;
+            }
+            object start = Parant(document, missingObj, strToFind).End + 1;
+            object one = Parant(document, missingObj, strToFind).End;
+            string check = document.Range(ref one, ref start).Text;
+            while (check == " " || check == "/r" || check == "/n")//находим начало первого источника
+            {
+                one = (int)one + 1;
+                start = (int)start + 1;
+                check = document.Range(ref one, ref start).Text.Substring(0, 1);
+            }
+            object end = (int)start + 2;
+            start = (int)one + 2;
+            check = "";
+            while (check != "\r")//находим конец первого источника
+            {
+                end = (int)end + 1;
+                start = (int)start + 1;
+                string str = document.Range(ref start, ref end).Text;
+                check = str.Substring(str.Length - 1);
+            }
+
+            string send;
+            send = document.Range(ref one, ref end).Text.Substring(1, document.Range(ref one, ref end).Text.Length - 1);
+            //textBox2.Text = document.Range(ref start, ref end).Text;
+            //if (textBox2.Text == "\r") textBox2.Text = "r;";
+            list[last] = new Lit { start = one, end = end, textAll = send, number = last + 1 };
+            list[last].Init();
+            object fir = 0;
+            object finish = document.Range(ref fir).End;
+            //найдём все источники по очереди
+            while (true)
+            {
+                one = (int)end;
+                check = "";
+                if ((int)end >= (int)finish) break;
+                while (check != "\r" && (int)end < (int)finish)//найдём конец очередного источника
+                {
+                    end = (int)end + 1;
+                    start = (int)start + 1;
+                    string str = document.Range(ref start, ref end).Text;
+                    check = str.Substring(str.Length - 1);
+                }
+                send = document.Range(ref one, ref end).Text.Substring(0, document.Range(ref one, ref end).Text.Length - 1);
+                Array.Resize(ref list, last + 2);
+                list[++last] = new Lit { start = one, end = end, textAll = send, number = last + 1 };
+                list[last].Init();
+                textBox2.Text += document.Range(ref one, ref end).Text;
+                end = (int)end + 1;
+                if ((int)end > (int)finish) break;
+                string sub = document.Range(ref start, ref end).Text.Substring(document.Range(ref start, ref end).Text.Length - 1, 1);
+                if ((int)end >= (int)finish || sub != (last + 2).ToString()) break;
+                end = (int)end - 1;
+            }
+            object save = Word.WdSaveOptions.wdSaveChanges;
+            object orform = Word.WdSaveFormat.wdFormatDocument;
+            object nullobj = System.Reflection.Missing.Value;
+            document.Close(ref save, ref orform, nullobj);
+            int i = 0;
+            application.Quit(save, orform, nullobj);
+        }
+
+        private void button2_Click(object sender, RoutedEventArgs e)
+        {
+            Word._Application application;
+            Word._Document document;
+            Object missingObj = System.Reflection.Missing.Value;
+            Object trueObj = true;
+            Object falseObj = false;
+            //создаем обьект приложения word
+            application = new Word.Application();
+            // создаем путь к файлу 
+            Object templatePathObj = textBox1.Text;
+            document = null;
+            // если вылетим на этом этапе, приложение останется открытым
+            try
+            {
+                document = application.Documents.Add(ref templatePathObj, ref missingObj, ref missingObj, ref missingObj);
+            }
+            catch (Exception error)
+            {
+                document.Close(ref falseObj, ref missingObj, ref missingObj);
+                application.Quit(ref missingObj, ref missingObj, ref missingObj);
+                document = null;
+                application = null;
+                throw error;
+            }
+            if (radioButton1.IsChecked == true)
+            {
+                object from = list[0].start;
+                object till = list[last].end;
+                string strToReplace = "(";
+
+                while (Parant(document, missingObj, " [") != null)
+                {
+                    from = Parant(document, missingObj, " [").Start + 1;
+                    till = Parant(document, missingObj, "].").End - 1;
+                    string strToChange = document.Range(ref from, ref till).Text;
+                    string current = "";
+                    for (int i = 1; i < strToChange.Length - 1; i++)
+                        if (strToChange[i] != ' ') if (char.IsDigit(strToChange[i])) current += strToChange[i]; else { }
+                        else
+                        {
+                            strToReplace += list[Convert.ToInt32(current) - 1].Refer + "; ";
+                            current = "";
+                        }
+                    strToReplace += list[Convert.ToInt32(current) - 1].Refer + ")";
+                    document.Range(ref from, ref till).Text = strToReplace;
+                }
+
+
+                for (int i = 0; i <= last; i++)
+                    for (int j = i + 1; j <= last; j++)
+                        if (String.Compare(list[i].textAll, list[j].textAll) == 1)
+                        {
+                            Lit t = new Lit();
+                            t = list[i];
+                            list[i] = list[j];
+                            list[j] = t;
+                            int tt = list[i].number;
+                            list[i].number = list[j].number;
+                            list[j].number = tt;
+                        }
+                strToReplace = "";
+                for (int i = 0; i <= last; i++) if (list[i].add == false) strToReplace += list[i].textAll + "\r"; else strToReplace += list[i].number.ToString() + " ." + list[i].textAll;
+                //textBox2.Text = strToReplace;
+                document.Range(ref from, ref till).Text = strToReplace;
+            }
+            else
+                if (radioButton2.IsChecked == true)
+            {
+                object from = list[0].start;
+                object till = list[last].end;
+                string strToReplace = "(";
+                while (Parant(document, missingObj, " [") != null)
+                {
+                    from = Parant(document, missingObj, " [").Start + 1;
+                    till = Parant(document, missingObj, "].").End - 1;
+                    string strToChange = document.Range(ref from, ref till).Text;
+                    string current = "";
+                    for (int i = 1; i < strToChange.Length - 1; i++)
+                        if (strToChange[i] != ' ') if (char.IsDigit(strToChange[i])) current += strToChange[i]; else { }
+                        else
+                        {
+                            strToReplace += list[Convert.ToInt32(current) - 1].Refer + "; ";
+                            current = "";
+                        }
+                    strToReplace += list[Convert.ToInt32(current) - 1].Refer + ")";
+                    document.Range(ref from, ref till).Text = strToReplace;
+                }
+                object[] id = new object[last + 1];
+                from = list[0].start;
+                till = list[last].end;
+                int[] pos = new int[last + 1];
+                bool change = false;
+                for (int i = 0; i <= last; i++)
+                {
+                    if (Parant(document, missingObj, list[i].Refer) != null)
+                        id[i] = Parant(document, missingObj, list[i].Refer).Start;
+                    else id[i] = till;
+                    pos[i] = i;
+                }
+                for (int i = 0; i <= last; i++) if ((int)id[i] != (int)till) { change = true; break; }
+                if (change != false)
+                {
+                    for (int i = 0; i <= last; i++)
+                        for (int j = i + 1; j <= last; j++)
+                            if ((int)id[i] > (int)id[j])
+                            {
+                                object t = id[i];
+                                id[i] = id[j];
+                                id[j] = t;
+                                Lit tt = new Lit();
+                                tt = list[i];
+                                list[i] = list[j];
+                                list[j] = tt;
+                                int ttt = list[i].number;
+                                list[i].number = list[j].number;
+                                list[j].number = ttt;
+                            }
+                    strToReplace = "";
+                    for (int i = 0; i <= last; i++) strToReplace += list[i].number.ToString() + ". " + list[i].textAll + "\r";
+                    document.Range(ref from, ref till).Text = strToReplace;
+                }
+            }
+            if (radioButton3.IsChecked == true)
+            {
+                for (int i = 0; i <= last; i++)
+                {
+                    bool keepDoing = false;
+                    if (Parant(document, missingObj, list[i].Refer) != null) keepDoing = true;
+                    while (keepDoing == true)
+                    {
+                        object fro = Parant(document, missingObj, list[i].Refer).Start;
+                        object fr = (int)fro - 1;
+                        if (document.Range(ref fr, ref fro).Text == "(") document.Range(ref fr, ref fro).Text = "[";
+                        object til = Parant(document, missingObj, list[i].Refer).End;
+                        object ti = (int)til + 1;
+                        if (document.Range(ref til, ref ti).Text == ")") document.Range(ref til, ref ti).Text = "]";
+                        document.Range(ref fro, ref til).Text = list[i].number.ToString();
+                        if (Parant(document, missingObj, list[i].Refer) != null) keepDoing = true;
+                        else keepDoing = false;
+                    }
+                }
+            }
+            else
+                if (radioButton4.IsChecked == true)
+            {
+                while (Parant(document, missingObj, " [") != null)
+                {
+                    object from = Parant(document, missingObj, " [").Start + 1;
+                    object till = Parant(document, missingObj, "].").End - 1;
+                    string strToChange = document.Range(ref from, ref till).Text;
+                    string strToReplace = "(";
+                    string current = "";
+                    for (int i = 1; i < strToChange.Length - 1; i++)
+                        if (strToChange[i] != ' ') if (char.IsDigit(strToChange[i])) current += strToChange[i]; else { }
+                        else
+                        {
+                            strToReplace += list[Convert.ToInt32(current) - 1].Refer + "; ";
+                            current = "";
+                        }
+                    strToReplace += list[Convert.ToInt32(current) - 1].Refer + ")";
+                    document.Range(ref from, ref till).Text = strToReplace;
+                }
+            }
+            application.Visible = true;
+        }
+    }
+}
